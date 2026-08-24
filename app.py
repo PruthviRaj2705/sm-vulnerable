@@ -1,3 +1,4 @@
+impoet os
 from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -392,6 +393,6 @@ def category(category_name):
         products=products
     )
 
-
 if __name__ == "__main__":
-    app.run(debug=True)
+    debug_mode = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
+    app.run(debug=debug_mode)
