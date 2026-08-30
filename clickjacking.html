@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Clickjacking Demo (CWE-1021)</title>
+</head>
+<body>
+  <h2>Account settings</h2>
+
+  <!--
+    VULNERABLE: this page sets no X-Frame-Options header and no
+    Content-Security-Policy `frame-ancestors` directive (headers would
+    normally be set server-side, but this page also has no frame-busting
+    script as a client-side fallback). It can be embedded in a hidden/
+    transparent iframe on an attacker's site and overlaid with fake UI,
+    tricking a logged-in user into clicking the real "Delete account"
+    button underneath.
+  -->
+  <button id="deleteBtn" onclick="alert('Account deleted')">Delete account</button>
+
+  <script>
+    // No frame-busting check like `if (window top !== window.self) ...`
+    // is present — the page is happy to render inside any iframe.
+  </script>
+
+  <!--
+    FIX (for reference): send `X-Frame-Options: DENY` (or `SAMEORIGIN`)
+    and/or `Content-Security-Policy: frame-ancestors 'none'` from the
+    server, and require re-authentication for destructive actions.
+  -->
+</body>
+</html>

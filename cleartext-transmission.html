@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cleartext Transmission Demo (CWE-319)</title>
+</head>
+<body>
+  <h2>Login</h2>
+  <input id="user" type="text" placeholder="username"><br><br>
+  <input id="pass" type="password" placeholder="password"><br><br>
+  <button onclick="login()">Log in</button>
+
+  <script>
+    // VULNERABLE: credentials are submitted over plain HTTP, not HTTPS.
+    // Anyone on the network path (public wifi, compromised router, ISP)
+    // can read the username/password in transit.
+    function login() {
+      fetch('http://example.com/api/login', { // <-- http, not https
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: document.getElementById('user').value,
+          password: document.getElementById('pass').value
+        })
+      });
+    }
+
+    // FIX (for reference): always submit credentials over https://, and
+    // set HSTS server-side so the browser refuses to downgrade to HTTP.
+  </script>
+</body>
+</html>

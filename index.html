@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vulnerable Frontend Test Fixtures</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; color: #222; }
+  h1 { font-size: 1.4rem; }
+  .warn { background: #fff3cd; border: 1px solid #ffcc00; padding: 12px 16px; border-radius: 6px; margin-bottom: 24px; }
+  ul { line-height: 2; }
+  code { background: #f2f2f2; padding: 2px 6px; border-radius: 4px; }
+</style>
+</head>
+<body>
+  <h1>Vulnerable Frontend Test Fixtures</h1>
+  <div class="warn">
+    <strong>For CI/CD pipeline scanning tests only.</strong> These pages contain intentional
+    vulnerabilities (CWE-tagged). Do not deploy publicly or reuse this code in production.
+  </div>
+  <ul>
+    <li><a href="dom-xss.html">dom-xss.html</a> — DOM-based XSS (CWE-79)</li>
+    <li><a href="stored-xss.html">stored-xss.html</a> — Stored XSS via localStorage (CWE-79)</li>
+    <li><a href="insecure-storage.html">insecure-storage.html</a> — Sensitive data in localStorage (CWE-312)</li>
+    <li><a href="eval-injection.html">eval-injection.html</a> — Code injection via <code>eval()</code> (CWE-95)</li>
+    <li><a href="open-redirect.html">open-redirect.html</a> — Unvalidated redirect (CWE-601)</li>
+    <li><a href="csrf-vulnerable-form.html">csrf-vulnerable-form.html</a> — Missing CSRF protection (CWE-352)</li>
+    <li><a href="insecure-postmessage.html">insecure-postmessage.html</a> — postMessage without origin check (CWE-346)</li>
+    <li><a href="outdated-dependency.html">outdated-dependency.html</a> — Known-vulnerable JS libraries (CWE-1104)</li>
+    <li><code>hardcoded-secrets.js</code> — Hardcoded credentials/keys (CWE-798)</li>
+    <li><a href="clickjacking.html">clickjacking.html</a> — No frame protection (CWE-1021)</li>
+    <li><a href="prototype-pollution.html">prototype-pollution.html</a> — Unsafe object merge (CWE-1321)</li>
+    <li><code>weak-token-generation.js</code> — Weak PRNG for tokens (CWE-338)</li>
+    <li><a href="client-side-auth-bypass.html">client-side-auth-bypass.html</a> — Client-only authorization (CWE-602)</li>
+    <li><a href="missing-sri.html">missing-sri.html</a> — Missing Subresource Integrity (CWE-829)</li>
+    <li><code>redos-validation.js</code> — ReDoS-vulnerable regex (CWE-1333)</li>
+    <li><a href="insecure-file-upload.html">insecure-file-upload.html</a> — Extension-only upload check (CWE-434)</li>
+    <li><a href="cleartext-transmission.html">cleartext-transmission.html</a> — Login over plain HTTP (CWE-319)</li>
+  </ul>
+  <p>See <code>README.md</code> for details on each vulnerability and expected scanner findings.</p>
+</body>
+</html>

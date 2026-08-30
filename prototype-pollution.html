@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Prototype Pollution Demo (CWE-1321)</title>
+</head>
+<body>
+  <h2>Apply settings from URL</h2>
+  <p>Try: <code>?settings={"__proto__":{"isAdmin":true}}</code></p>
+  <div id="status"></div>
+
+  <script>
+    // VULNERABLE: recursively merges an attacker-controlled object into
+    // an application object without blocking "__proto__" / "constructor"
+    // / "prototype" keys. This lets an attacker pollute Object.prototype
+    // for every object in the page, potentially flipping security-relevant
+    // flags (like isAdmin) checked elsewhere in the app.
+    function unsafeMerge(target, source) {
+      for (const key in source) {
+        if (typeof source[key] === 'object' && source[key] !== null) {
+          target[key] = target[key] || {};
+          unsafeMerge(target[key], source[key]); // <-- no key filtering
+        } else {
+          target[key] = source[key];
+        }
+      }
+      return target;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get('settings');
+
+    if (raw) {
+      const userSettings = JSON.parse(raw);
+      const appConfig = {};
+      unsafeMerge(appConfig, userSettings);
+      document.getElementById('status').textContent =
+        'isAdmin on a fresh object is now: ' + ({}).isAdmin;
+    }
+
+    // FIX (for reference): reject/skip "__proto__", "constructor" and
+    // "prototype" keys during merge, or use Object.create(null) /
+    // structuredClone instead of a hand-rolled deep merge.
+  </script>
+</body>
+</html>

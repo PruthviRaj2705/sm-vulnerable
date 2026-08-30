@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Insecure File Upload Demo (CWE-434)</title>
+</head>
+<body>
+  <h2>Upload profile picture</h2>
+  <input type="file" id="fileInput" onchange="handleFile(this.files[0])">
+  <div id="preview"></div>
+
+  <script>
+    // VULNERABLE: "validation" only checks the filename's extension
+    // (easily renamed, e.g. shell.php.jpg or malicious.svg) and never
+    // inspects the actual file content/MIME type. Worse, the file is
+    // then rendered directly, and if this is ever wired to a real
+    // upload endpoint with no server-side re-validation, an attacker
+    // can upload an executable/script disguised with an image extension.
+    function handleFile(file) {
+      if (!file) return;
+      const allowedExt = ['.jpg', '.jpeg', '.png'];
+      const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+
+      if (allowedExt.includes(ext)) { // <-- extension-only check
+        const url = URL.createObjectURL(file);
+        document.getElementById('preview').innerHTML =
+          '<img src="' + url + '" width="150">'; // also unsanitized innerHTML
+      } else {
+        alert('File type not allowed');
+      }
+    }
+
+    // FIX (for reference): validate actual file content/magic bytes and
+    // MIME type server-side (never trust the client), re-encode images
+    // on the server, store uploads outside the webroot with generated
+    // names, and enforce the same checks server-side regardless of what
+    // the client sent.
+  </script>
+</body>
+</html>

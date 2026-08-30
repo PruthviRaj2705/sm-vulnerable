@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Missing SRI Demo (CWE-829)</title>
+
+  <!--
+    VULNERABLE: script is loaded from a third-party CDN with no
+    `integrity` (SRI hash) or `crossorigin` attribute. If the CDN is
+    compromised, or the connection is tampered with, an attacker can
+    swap in malicious JavaScript and this page will execute it without
+    complaint — even though the version pinned in the URL looks fine.
+  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+  <h2>Missing Subresource Integrity demo</h2>
+  <p>This page pins a current jQuery version but loads it with no SRI
+     hash, so tampering with the CDN response would go undetected.</p>
+
+  <!--
+    FIX (for reference): add integrity="sha384-..." and
+    crossorigin="anonymous" attributes matching the exact file, e.g.:
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+            integrity="sha384-<hash-here>"
+            crossorigin="anonymous"></script>
+  -->
+</body>
+</html>

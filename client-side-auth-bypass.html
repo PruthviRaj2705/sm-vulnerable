@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Client-Side Authorization Demo (CWE-602)</title>
+<style>
+  #adminPanel { display: none; } /* hidden by CSS, not real protection */
+</style>
+</head>
+<body>
+  <h2>Dashboard</h2>
+  <button onclick="checkRole()">Show admin panel</button>
+
+  <!--
+    VULNERABLE: the admin panel and its data are already present in the
+    DOM/page source. The only thing gating visibility is client-side JS
+    (display:none + a role check the user's own browser evaluates).
+    Anyone can open devtools, flip the CSS, or read the "hidden" markup —
+    the server never re-checks authorization when the data was sent.
+  -->
+  <div id="adminPanel">
+    <h3>Admin panel</h3>
+    <p>All user emails: alice@example.com, bob@example.com, carol@example.com</p>
+    <button onclick="alert('User deleted')">Delete a user</button>
+  </div>
+
+  <script>
+    // Role comes from a value the client itself controls (e.g. a JS
+    // variable, not a server-verified session) — trivial to bypass by
+    // editing this in devtools before calling checkRole().
+    let currentUserRole = 'user';
+
+    function checkRole() {
+      if (currentUserRole === 'admin') { // <-- client-side-only gate
+        document.getElementById('adminPanel').style.display = 'block';
+      } else {
+        alert('Not authorized');
+      }
+    }
+
+    // FIX (for reference): never send admin-only data/markup to a
+    // non-admin client at all; enforce authorization on every request,
+    // server-side, based on the verified session.
+  </script>
+</body>
+</html>
