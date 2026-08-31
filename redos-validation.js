@@ -6,8 +6,8 @@
 // service triggerable just by typing into the form.
 
 function isValidEmail(input) {
-  const evilRegex = /^([a-zA-Z0-9]+)+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/; // <-- ReDoS
-  return evilRegex.test(input);
+  const emailRegex = /^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}$/;
+  return emailRegex.test(input);
 }
 
 // Example trigger (do not run in a page you care about staying responsive):
