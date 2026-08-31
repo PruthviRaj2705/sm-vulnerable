@@ -1,0 +1,19 @@
+{
+  "SchemaVersion": 2,
+  "Trivy": {
+    "Version": "0.74.0"
+  },
+  "ReportID": "01a057f3-88dd-7e1e-8ec9-462e4660ffc3",
+  "CreatedAt": "2026-08-31T13:12:53.213930327Z",
+  "ArtifactID": "sha256:fa77f63dc345bf5ae2e3790ea4c30cca787465d1a4982ef129d1937e32663057",
+  "ArtifactName": "/src",
+  "ArtifactType": "repository",
+  "Metadata": {
+    "RepoURL": "https://github.com/PruthviRaj2705/sm-vulnerable.git",
+    "Branch": "main",
+    "Commit": "7b10d9cd559a682180b64f815135d61635679200",
+    "CommitMsg": "Add files via upload",
+    "Author": "Pruthvi Raj R C \u003cpruthvirajrc2705@gmail.com\u003e",
+    "Committer": "GitHub \u003cnoreply@github.com\u003e"
+  }
+}

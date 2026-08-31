@@ -4,14 +4,16 @@
 // security-sensitive like session IDs, password-reset tokens, or CSRF
 // tokens.
 
+const crypto = require('crypto');
+
 function generateSessionToken() {
-  return Math.random().toString(36).substring(2); // <-- weak PRNG
+  return crypto.randomBytes(24).toString('hex');
 }
 
 function generatePasswordResetToken() {
   let token = '';
   for (let i = 0; i < 20; i++) {
-    token += Math.floor(Math.random() * 10); // <-- weak PRNG, small space
+    token += crypto.randomInt(0, 10);
   }
   return token;
 }
