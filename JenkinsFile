@@ -1,0 +1,255 @@
+pipeline {
+    agent any
+
+    stages {
+
+        // =====================================================
+        // CHECKOUT
+        // =====================================================
+
+        stage('Checkout') {
+            steps {
+                echo 'Checking out the GitHub repository...'
+
+                checkout scm
+
+                sh '''
+                    echo "========== CHECKOUT =========="
+                    echo "Repository:"
+                    git remote -v || true
+
+                    echo ""
+                    echo "Branch:"
+                    git branch --show-current || true
+
+                    echo ""
+                    echo "Commit:"
+                    git log -1 --oneline
+
+                    echo ""
+                    echo "Files:"
+                    find . -maxdepth 2 -type f \
+                        ! -path './.git/*' \
+                        | sort
+                '''
+            }
+        }
+
+
+        // =====================================================
+        // SONARQUBE
+        // =====================================================
+
+        stage('SonarQube Scan') {
+            steps {
+                echo 'Starting SonarQube analysis...'
+
+                script {
+
+                    def scannerHome = tool(
+                        name: 'SonarQube Scanner',
+                        type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                    )
+
+                    withSonarQubeEnv('SonarQube') {
+
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                              -Dsonar.projectKey=security-test \
+                              -Dsonar.projectName=Security-Test \
+                              -Dsonar.sources=. \
+                              -Dsonar.scm.disabled=true
+                        """
+                    }
+                }
+            }
+        }
+
+
+        // =====================================================
+        // TRIVY
+        // =====================================================
+
+        stage('Trivy Scan') {
+            steps {
+
+                echo 'Starting Trivy security scan...'
+
+                sh '''
+                    set -e
+
+                    echo "========== TRIVY SCAN =========="
+
+                    if command -v trivy >/dev/null 2>&1; then
+                        TRIVY_BIN="trivy"
+                    elif [ -x "/var/jenkins_home/tools/trivy/trivy" ]; then
+                        TRIVY_BIN="/var/jenkins_home/tools/trivy/trivy"
+                    else
+                        echo "ERROR: Trivy was not found."
+                        exit 1
+                    fi
+
+                    echo "Using Trivy:"
+                    ${TRIVY_BIN} --version
+
+                    ${TRIVY_BIN} fs \
+                        --scanners vuln,secret \
+                        --format json \
+                        --output trivy-report.json \
+                        .
+
+                    echo ""
+                    echo "Trivy scan completed."
+                '''
+            }
+        }
+
+
+        // =====================================================
+        // SECURITY GATE
+        // =====================================================
+
+        stage('Security Gate') {
+            steps {
+
+                echo 'Checking final security gate...'
+
+                sh '''
+                    python3 - <<'PY'
+import json
+import sys
+
+with open("trivy-report.json", "r", encoding="utf-8") as f:
+    report = json.load(f)
+
+counts = {
+    "CRITICAL": 0,
+    "HIGH": 0,
+    "MEDIUM": 0,
+    "LOW": 0,
+}
+
+secrets = 0
+
+for result in report.get("Results", []) or []:
+
+    for vuln in result.get("Vulnerabilities", []) or []:
+
+        severity = str(
+            vuln.get("Severity", "")
+        ).upper()
+
+        if severity in counts:
+            counts[severity] += 1
+
+    for secret in result.get("Secrets", []) or []:
+
+        secrets += 1
+
+        severity = str(
+            secret.get("Severity", "")
+        ).upper()
+
+        if severity in counts:
+            counts[severity] += 1
+
+
+print("")
+print("========================================")
+print("          FINAL SECURITY GATE")
+print("========================================")
+print(f"CRITICAL : {counts['CRITICAL']}")
+print(f"HIGH     : {counts['HIGH']}")
+print(f"MEDIUM   : {counts['MEDIUM']}")
+print(f"LOW      : {counts['LOW']}")
+print(f"SECRETS  : {secrets}")
+print("========================================")
+
+
+total_security_findings = (
+    counts["CRITICAL"]
+    + counts["HIGH"]
+    + counts["MEDIUM"]
+    + counts["LOW"]
+    + secrets
+)
+
+if total_security_findings > 0:
+
+    print("")
+    print("SECURITY GATE: FAILED")
+    print("Security findings remain in the repository.")
+    print("Jenkins will stop the pipeline.")
+
+    sys.exit(1)
+
+
+print("")
+print("SECURITY GATE: PASSED")
+print("No Trivy vulnerabilities or secrets remain.")
+print("")
+PY
+                '''
+            }
+        }
+
+
+        // =====================================================
+        // FINAL SUCCESS
+        // =====================================================
+
+        stage('Pipeline Result') {
+            steps {
+
+                echo '========================================'
+                echo 'SECURITY PIPELINE PASSED'
+                echo '========================================'
+
+                echo 'Repository checkout: PASSED'
+                echo 'SonarQube scan: COMPLETED'
+                echo 'Trivy scan: PASSED'
+                echo 'Security gate: PASSED'
+                echo 'Final result: SUCCESS'
+            }
+        }
+    }
+
+
+    // =========================================================
+    // POST ACTIONS
+    // =========================================================
+
+    post {
+
+        success {
+            echo '''
+========================================
+       JENKINS SECURITY PIPELINE
+              PASSED
+========================================
+
+The remediated repository passed
+the final security verification.
+'''
+        }
+
+        failure {
+            echo '''
+========================================
+       JENKINS SECURITY PIPELINE
+              FAILED
+========================================
+
+Security findings or a pipeline error
+were detected. Review the Console Output.
+'''
+        }
+
+        always {
+            archiveArtifacts(
+                artifacts: 'trivy-report.json',
+                allowEmptyArchive: true
+            )
+        }
+    }
+}
