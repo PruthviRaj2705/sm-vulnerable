@@ -1,5 +1,3 @@
-import ast
-import json
 """
 INTENTIONALLY VULNERABLE CODE - for testing SonarQube / SAST pipelines only.
 Do NOT deploy. All credentials below are fake.
@@ -19,10 +17,10 @@ from flask import Flask, request, make_response
 app = Flask(__name__)
 
 # [Hotspot/Vuln] Hard-coded credentials & secrets
-DB_PASSWORD = os.environ.get("REDACTED_SECRET", "REDACTED_SECRET")
+DB_PASSWORD = "admin123"
 AWS_ACCESS_KEY_ID = "AKIAIOSFODNN7EXAMPLE"
 AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-API_TOKEN = os.environ.get("REDACTED_SECRET", "REDACTED_SECRET")
+API_TOKEN = "ghp_1234567890abcdefghijklmnopqrstuvwxyz"
 
 
 # [Vuln] SQL Injection (string concatenation / f-string in query)
@@ -31,8 +29,7 @@ def get_user():
     username = request.args.get("name")
     conn = sqlite3.connect("app.db")
     cursor = conn.cursor()
-    query = "SELECT * FROM users WHERE name = ?"
-    # Use parameterized query: cursor.execute(query, (username,)) + "'"
+    query = "SELECT * FROM users WHERE name = '" + username + "'"
     cursor.execute(query)
     return str(cursor.fetchall())
 
@@ -48,7 +45,7 @@ def ping():
 @app.route("/calc")
 def calc():
     expr = request.args.get("expr")
-    return str(ast.literal_eval(expr))
+    return str(eval(expr))
 
 
 # [Vuln] Path Traversal
@@ -70,7 +67,7 @@ def hello():
 @app.route("/load", methods=["POST"])
 def load_data():
     data = request.get_data()
-    obj = json.loads(data.decode("utf-8") if isinstance(data, bytes) else data)
+    obj = pickle.loads(data)
     return str(obj)
 
 
@@ -86,7 +83,7 @@ def parse_xml(xml_string):
 
 # [Vuln] Weak hashing algorithms (MD5 / SHA1) for passwords
 def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+    return hashlib.md5(password.encode()).hexdigest()
 
 
 def hash_token(token):
