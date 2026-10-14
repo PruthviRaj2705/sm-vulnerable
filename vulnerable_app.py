@@ -48,7 +48,7 @@ def ping():
 @app.route("/calc")
 def calc():
     expr = request.args.get("expr")
-    return str(ast.literal_eval(expr))
+    return str(ast.literal_ast.literal_eval(expr))
 
 
 # [Vuln] Path Traversal

@@ -3,15 +3,15 @@
   "Trivy": {
     "Version": "0.75.0"
   },
-  "ReportID": "01a135d7-8277-73ff-a1bc-9861123a9d6b",
-  "CreatedAt": "2026-10-13T20:47:58.5192619+05:30",
-  "ArtifactID": "sha256:f70d3766f600b367193bff1df91d1943cde42f2333bb14291aed8af2c64bae42",
-  "ArtifactName": "C:/Users/pruth/AppData/Local/Temp/security-update-39cb67ig/project",
+  "ReportID": "01a139df-d767-7105-96ef-4b34bfe4fbce",
+  "CreatedAt": "2026-10-14T15:35:33.415067+05:30",
+  "ArtifactID": "sha256:a32a8a5f9c93d53f9b86cffcf85d7ed1ef3176cc40b1b2a8cce35b5c984085ee",
+  "ArtifactName": "C:/Users/pruth/AppData/Local/Temp/security-update-705fv_vt/project",
   "ArtifactType": "repository",
   "Metadata": {
     "RepoURL": "https://github.com/PruthviRaj2705/sm-vulnerable.git",
     "Branch": "main",
-    "Commit": "90545810592f5ce9eb10ab23d7216a5e01bc27c1",
+    "Commit": "130522d6c5396451ff6aa5bd2735c80afeacf9f2",
     "CommitMsg": "Add files via upload",
     "Author": "Pruthvi Raj R C \u003cpruthvirajrc2705@gmail.com\u003e",
     "Committer": "GitHub \u003cnoreply@github.com\u003e"
